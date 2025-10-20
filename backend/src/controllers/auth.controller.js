@@ -1,4 +1,3 @@
-import { sendWelcomeEmail } from "../emails/emailHandlers.js";
 import { generateToken } from "../lib/utils.js";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
@@ -37,12 +36,6 @@ export const signup = async (req, res) => {
     });
 
     if (newUser) {
-      // before CR:
-      // generateToken(newUser._id, res);
-      // await newUser.save();
-
-      // after CR:
-      // Persist user first, then issue auth cookie
       const savedUser = await newUser.save();
       generateToken(savedUser._id, res);
 
@@ -53,11 +46,6 @@ export const signup = async (req, res) => {
         profilePic: newUser.profilePic,
       });
 
-      // try {
-      //   await sendWelcomeEmail(savedUser.email, savedUser.fullName, ENV.CLIENT_URL);
-      // } catch (error) {
-      //   console.error("Failed to send welcome email:", error);
-      // }
     } else {
       res.status(400).json({ message: "Invalid user data" });
     }
@@ -77,7 +65,6 @@ export const login = async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
-    // never tell the client which one is incorrect: password or email
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) return res.status(400).json({ message: "Invalid credentials" });
