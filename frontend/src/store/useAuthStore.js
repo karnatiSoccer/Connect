@@ -18,6 +18,10 @@ export const useAuthStore = create((set, get) => ({
       const res = await axiosInstance.get("/auth/check");
       set({ authUser: res.data });
       get().connectSocket();
+      if(error.response?.status === 401) {
+        console.warn("User is not authenticated");
+      }
+
     } catch (error) {
       console.log("Error in authCheck:", error);
       set({ authUser: null });
